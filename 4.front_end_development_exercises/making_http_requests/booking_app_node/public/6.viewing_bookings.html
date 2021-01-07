@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viewing Bookings</title>
+  <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
+</head>
+<body>
+  <h2>Bookings</h2>
+    <ul id='bookings'>
+
+    </ul>
+    <script>
+      let list = document.querySelector('#bookings');
+
+      $.ajax({
+        url: 'http://localhost:3000/api/bookings',
+        type: 'GET',
+      }).done((response) => {
+        console.log(response);
+        response.forEach(date => {
+          let li = document.createElement('li');
+          li.textContent = date;
+          list.appendChild(li);
+        });
+      });
+
+      list.addEventListener('click', (event) => {
+        let date = event.target.textContent;
+
+        // GET bookings for a date
+        let request = new XMLHttpRequest();
+        request.open('GET', `http://localhost:3000/api/bookings/${date}`)
+        request.responseType = 'json',
+        request.send();
+        request.addEventListener('load', () => {
+          let meetings = [];
+          request.response.forEach(meeting => {
+            meeting = meeting.join(' | ');
+            meetings.push(meeting);
+          });
+
+          meetings.forEach(meeting2 => {
+            let ul = document.createElement('ul');
+            let li = document.createElement('li');
+            li.textContent = meeting2;
+            ul.appendChild(li);
+            event.target.appendChild(ul);
+          });
+        })
+      })
+    </script>
+</body>
+</html>

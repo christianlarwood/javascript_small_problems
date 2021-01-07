@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Delete</title>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.6/handlebars.js'></script>
+  <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
+  <style>
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto; /* 15% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; /* Could be more or less, depending on screen size */
+    }
+
+    /* The Close Button */
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .menu {
+      width: 120px;
+      z-index: 1;
+      box-shadow: 0 4px 5px 3px rgba(0, 0, 0, 0.2);
+      position: fixed;
+      display: none;
+      transition: 0.2s display ease-in;
+    }
+    .menu .menu-options {
+      list-style: none;
+      padding: 10px 0;
+      z-index: 1;
+    }
+    .menu .menu-options .menu-option {
+      font-weight: 500;
+      z-index: 1;
+      font-size: 14px;
+      padding: 10px 40px 10px 20px;
+      cursor: pointer;
+    }
+    .menu .menu-options .menu-option:hover {
+      background: rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <h2>Todos</h2>
+  <div id='todos'>
+
+  </div>
+  <div class="menu">
+    <ul class="menu-options">
+      <li class="menu-option">Back</li>
+      <li class="menu-option">Reload</li>
+      <li class="menu-option">Save</li>
+      <li class="menu-option">Save As</li>
+      <li class="menu-option">Delete</li>
+   <li class="menu-option">Spy</li>
+    </ul>
+  </div>
+    <!-- The Modal -->
+  <!-- <div id="delete_modal" class="modal">
+
+    <!-- Modal content -->
+    <!-- <div class="modal-content">
+      <span class="close">&times;</span>
+      <p>Are you sure you want to delete the following todo?</p>
+      <p id='selected_todo'></p>
+      <button id='yes'>Yes</button>
+      <button id='no'>No</button>
+    </div> -->
+
+  <!-- </div> -->
+  <script id='todoTemplate' type='text/x-handlebars'>
+    <ul>
+    {{#each todos}}
+      <li data-id={{id}}>
+        <h4>{{title}}</h4>
+        <!-- <button data-todo-id={{id}}>Delete</button> -->
+        <!-- <menu type="context" data-id={{id}}>
+          <menuitem label="Delete">
+        </menu> -->
+      </li>
+      <!-- <dl><button data-todo-id={{id}}>Delete</dl> -->
+    {{/each}}
+    </ul>
+  </script>
+  <script>
+    class TodoApp {
+      constructor(todo_items) {
+        this.todos = todo_items;
+        this.templates = {};
+        this.selectedTodo;
+        this.compileTemplates();
+        this.renderPage();
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        // let yesButton = document.querySelector('#yes'); 
+        // let noButton = document.querySelector('#no');
+        $('#todos').on('click', 'button', this.deleteTodo.bind(this));
+        // yesButton.addEventListener('click', this.confirmDelete.bind(this));
+        // noButton.addEventListener('click', this.cancelDelete.bind(this));
+      }
+
+      confirmDelete(event) {
+        event.preventDefault();
+  
+        let todoId = Number(this.selectedTodo.getAttribute('data-id'));
+        let indexOfTodo = this.todos.findIndex(todoObject => todoObject.id === todoId);
+        this.todos.splice(indexOfTodo, 1);
+
+        this.renderPage();
+        this.removeModal();
+      }
+
+      cancelDelete(event) {
+        event.preventDefault();
+        this.removeModal();
+      }
+
+      deleteTodo(event) {
+        let selectedTodoContainer = document.querySelector('#selected_todo');
+    
+        this.selectedTodo = event.target.parentElement;
+        let todoText = event.target.previousElementSibling.textContent;
+        selectedTodoContainer.innerHTML = `<strong>${todoText}</strong>`;
+
+        this.displayModal();
+
+        let span = document.getElementsByClassName('close')[0];
+        span.addEventListener('click', () => {
+          this.removeModal();
+        });
+      }
+
+      displayModal() {
+        let modal = document.getElementById('delete_modal');
+        let span = document.getElementsByClassName('close')[0];
+        modal.style.display = "block";
+      }
+
+      removeModal() {
+        let modal = document.getElementById('delete_modal');
+        let span = document.getElementsByClassName('close')[0];
+        modal.style.display = 'none';
+      }
+
+      compileTemplates() {
+        this.templates['todosTemplate'] = Handlebars.compile($('#todoTemplate').html());
+      }
+
+      renderPage() {
+        $('#todos').html(this.templates.todosTemplate({ todos: this.todos }));
+      }
+
+      
+    }
+
+    const todo_items = [
+      { id: 1, title: 'Homework' },
+      { id: 2, title: 'Shopping' },
+      { id: 3, title: 'Calling Mom' },
+      { id: 4, title: 'Coffee with John '}
+    ];
+
+    new TodoApp(todo_items)
+  </script>
+</body>
+</html>

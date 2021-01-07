@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Validation, Part 1</title>
+</head>
+<body>
+  <h1>Form Validation</h1>
+  <form novalidate>
+    <label for="first_name">First Name:</label>
+    <input type='first_name' id='first_name' name='first_name' required pattern='[A-Za-z]+'></br>
+    <label for="last_name">Last Name:</label>
+    <input type='last_name' id='last_name' name='last_name' required pattern='[A-Za-z]+'></br>
+    <label for="email">E-mail:</label>
+    <input type='email' id='email' name='email' placeholder='someone@example.com' required pattern='.+@.+'></br>
+    <label for="credit_card">Credit Card:</label>
+    <input type='credit_card' id='credit_card' name='credit_card' placeholder='1111-1111-1111-1111' required pattern='\d{4}-\d{4}-\d{4}-\d{4}' maxlength="19"></br>
+    <label for="alt_credit_card">Alt Credit Card:</label>
+    <input type='text' id='alt_credit_card_1' name='alt_credit_card' placeholder='1111' required pattern='\d{4}' maxlength="4" minlength='4'>
+    <input type='text' id='alt_credit_card_2' name='alt_credit_card' placeholder='1111' required pattern='\d{4}' maxlength="4" minlength='4'>
+    <input type='text' id='alt_credit_card_3' name='alt_credit_card' placeholder='1111' required pattern='\d{4}' maxlength="4" minlength='4'>
+    <input type='text' id='alt_credit_card_4' name='alt_credit_card' placeholder='1111' required pattern='\d{4}' maxlength="4" minlength='4'>
+    </br>
+    <label for="password">Password:</label>
+    <input type='password' id='password' name='password' required minlength="10"></br>
+    <label for="phone">Phone:</label>
+    <input type='phone' id='phone' name='phone' placeholder='555-555-5555' minlength='10' maxlength='12' pattern='[0-9\-]+'></br>
+    <button type='submit'>Sign Up</button>
+    <div id='serialized'>
+      <h1>Serialized Form</h1>
+    </div>
+  </form>
+
+  <script>
+    const firstName = document.querySelector('#first_name');
+    const lastName = document.querySelector('#last_name');
+    const email = document.querySelector('#email');
+    const creditCard = document.querySelector('#credit_card');
+    const password = document.querySelector('#password');
+    const phone = document.querySelector('#phone');
+    const form = document.querySelector('form');
+    const serialized = document.querySelector('#serialized');
+
+    let firstNameError = document.createElement('span');
+    let lastNameError = document.createElement('span');
+    let emailError = document.createElement('span');
+    let creditCardError = document.createElement('span');
+    let passwordError = document.createElement('span');
+    let phoneError = document.createElement('span');
+
+    const ALPHA = 'abcdefghijklmnopqrstuvwxyz';
+
+    // document.addEventListener('DOMContentLoaded', event => {
+    //   let currentElement = event.currentTarget;
+    //   console.log(event.target);
+
+ //       const errorMessages = {
+//         first_name: ' Please enter your first name.',
+//         last_name: ' Please enter your last name.'
+//         }
+//       // })
+    
+//       let allInputs = document.querySelectorAll('input');
+//       console.log(allInputs.forEach(node => {console.log(node)}));
+    
+//       allInputs.forEach(currentElement => {
+//         currentElement.addEventListener('focusout', () => {
+//           if (currentElement.validity.valid) {
+//             currentElement.textContent = '';
+//             currentElement.style.borderColor = 'green';
+//           } else {
+//             let elementId = 
+//             // currentElement.textContent = elementErrorMessage();
+//             currentElement.textContent = errorMessages.first_name;
+//             let errorElement = document.createElement('span');
+//             currentElement.style.borderColor = 'red';
+//             currentElement.insertAdjacentElement('afterend', errorElement);
+//           }
+//         });
+//       });
+
+    firstName.addEventListener('focusout', () => {
+      if (firstName.validity.valid) {
+        firstNameError.textContent = '';
+        firstName.style.borderColor = 'green';
+      } else {
+        firstName.style.borderColor = 'red';
+        firstNameError.textContent = ' Please enter your first name.'
+        firstName.insertAdjacentElement('afterend', firstNameError);
+      }
+    });
+
+    firstName.addEventListener('focusin', () => {
+      firstNameError.textContent = '';
+    });
+
+    firstName.addEventListener('keypress', event => {
+      if (!ALPHA.includes(event.key)) {
+        event.preventDefault();
+      }
+    });
+
+    lastName.addEventListener('focusout', () => {
+      if (lastName.validity.valid) {
+        lastNameError.textContent = '';
+        lastName.style.borderColor = 'green';
+      } else {
+        lastName.style.borderColor = 'red';
+        lastNameError.textContent = ' Please enter your last name.'
+        lastName.insertAdjacentElement('afterend', lastNameError);
+      }
+    });
+
+    lastName.addEventListener('focusin', () => {
+      lastNameError.textContent = '';
+    });
+
+    lastName.addEventListener('keypress', event => {
+      if (!ALPHA.includes(event.key)) {
+        event.preventDefault();
+      }
+    });
+
+    email.addEventListener('focusout', () => {
+      if (email.validity.valid) {
+        emailError.textContent = '';
+        email.style.borderColor = 'green';
+      } else {
+        email.style.borderColor = 'red';
+        emailError.textContent = ' Please enter your email.'
+        email.insertAdjacentElement('afterend', emailError);
+      }
+    });
+
+    // creditCard.addEventListener('focusin', () => {
+    //   creditCardError.textContent = '';
+    // });
+
+    // creditCard.addEventListener('focusout', () => {
+    //   if (creditCard.validity.valid) {
+    //     creditCardError.textContent = '';
+    //     creditCard.style.borderColor = 'green';
+    //   } else {
+    //     creditCard.style.borderColor = 'red';
+    //     creditCardError.textContent = ' Please enter a valid credit card number.'
+    //     creditCard.insertAdjacentElement('afterend', creditCardError);
+    //   }
+    // });
+
+    let altCreditCardFields = [...(document.querySelectorAll('[name="alt_credit_card"]'))];
+    altCreditCardFields.pop();
+
+    console.log(altCreditCardFields);
+    altCreditCardFields.forEach(element => {
+      element.addEventListener('keyup', event => {
+        if (event.target.value.length === 4) {
+          // console.log('theres 4');
+        }
+      });
+    })
+
+    email.addEventListener('focusin', () => {
+      emailError.textContent = '';
+    });
+
+    password.addEventListener('focusout', () => {
+      if (password.validity.valid) {
+        passwordError.textContent = '';
+        password.style.borderColor = 'green';
+      } else if (password.value.length === 0 ) {
+        password.style.borderColor = 'red';
+        passwordError.textContent = ' Please enter your password.'
+        password.insertAdjacentElement('afterend', passwordError);
+      } else if (password.value.length < 10) {
+        password.style.borderColor = 'red';
+        passwordError.textContent = ' Password must be at least 10 characters.'
+        password.insertAdjacentElement('afterend', passwordError);
+      }
+    });
+
+    password.addEventListener('focusin', () => {
+      passwordError.textContent = '';
+    });
+
+    phone.addEventListener('focusout', () => {
+      if (phone.validity.valid) {
+        phoneError.textContent = '';
+        phone.style.borderColor = 'green';
+      } else {
+        phone.style.borderColor = 'red';
+        phoneError.textContent = ' Please enter your phone number in the 111-111-1111 format.'
+        phone.insertAdjacentElement('afterend', phoneError);
+      }
+    });
+
+    phone.addEventListener('focusin', () => {
+      phoneError.textContent = '';
+    });
+
+    let formError = document.createElement('span');
+    formError.classList.add('formError');
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      let button = document.querySelector('button');
+
+      if (!firstName.validity.valid || !lastName.validity.valid || !email.validity.valid ||
+          !password.validity.valid) {
+        formError.textContent = 'Cannot submit the form until all required fields are properly filled out.'
+        // document.body.insertAdjacentElement('beforeend', formError);
+        // formError.style.fontColor = 'red';
+        serialized.insertAdjacentElement('beforebegin', formError)
+      } else {
+        formError.textContent = '';
+      }
+      
+      let keysAndValues = [];
+
+      for (let index = 0; index < form.elements.length; index += 1) {
+        let element = form.elements[index];
+        let key;
+        let value;
+
+        if (element.type !== 'submit') {
+          key = encodeURIComponent(element.name);
+          value = encodeURIComponent(element.value);
+          keysAndValues.push(`${key}=${value}`);
+        }
+      }
+
+      let data = keysAndValues.join('&');
+      let cleanedData = data.replaceAll('&alt_credit_card=', '');
+
+      let request = new XMLHttpRequest();
+
+      request.open('POST', 'url');
+      request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      
+      let p = document.createElement('p');
+      p.textContent = cleanedData;
+      serialized.appendChild(p);
+      
+      request.addEventListener('load', event => {
+        console.log('Your information was submitted.');
+      });
+      request.send(cleanedData);
+    });
+
+  </script>
+</body>
+</html>

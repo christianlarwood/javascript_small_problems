@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    const questions = [
+      {
+        id: 1,
+        description: "Who is the author of <cite>The Hitchhiker's Guide to the Galaxy</cite>?",
+        options: ['Dan Simmons', 'Douglas Adams', 'Stephen Fry', 'Robert A. Heinlein'],
+      },
+      {
+        id: 2,
+        description: 'Which of the following numbers is the answer to Life, the \
+                      Universe and Everything?',
+        options: ['66', '13', '111', '42'],
+      },
+      {
+        id: 3,
+        description: 'What is Pan Galactic Gargle Blaster?',
+        options: ['A drink', 'A machine', 'A creature', 'None of the above'],
+      },
+      {
+        id: 4,
+        description: 'Which star system does Ford Prefect belong to?',
+        options: ['Aldebaran', 'Algol', 'Betelgeuse', 'Alpha Centauri'],
+      },
+    ];
+
+    const answerKey = { '1': 'Douglas Adams', '2': '42', '3': 'A drink', '4': 'Betelgeuse' };
+
+    let wrapperElement = document.createElement('div');
+    wrapperElement.classList.add('wrapper');
+    document.body.appendChild(wrapperElement);
+    
+    let wrapper = document.querySelector('.wrapper');
+
+    // create form
+    let formElement = document.createElement('form');
+    formElement.setAttribute('action', '#');
+    formElement.setAttribute('method', 'post');
+    document.body.appendChild(formElement);
+
+    let form = document.querySelector('form');
+
+    // render each question and options
+    questions.forEach((obj, index) => {
+      let questionIndex = index;
+      let questionContainer = document.createElement('div');
+      questionContainer.setAttribute('name', `question_${questionIndex + 1}`);
+      let question = document.createElement('h4');
+      question.innerHTML = `Q${obj.id}: ${obj.description}`
+      questionContainer.appendChild(question);
+
+      let options = obj.options;
+      options.forEach((option, index) => {
+        let optionIndex = index
+        let input = document.createElement('input')
+        input.setAttribute('type', 'radio');
+        input.setAttribute('name', `question_${questionIndex + 1}`);
+        input.setAttribute('id', `option_${optionIndex + 1}`)
+
+        let label = document.createElement('label');
+        label.textContent = option;
+        let breakEl = document.createElement('br');
+
+        questionContainer.appendChild(input);
+        questionContainer.appendChild(label);
+        questionContainer.appendChild(breakEl);
+      })
+
+      form.appendChild(questionContainer);
+    })
+
+    let renderButtons = (function() {
+      let submitButton = document.createElement('input');
+      let resetButton = document.createElement('input');
+      submitButton.setAttribute('type', 'submit');
+      submitButton.setAttribute('value', 'Submit Quiz');
+      resetButton.setAttribute('type', 'submit');
+      resetButton.setAttribute('value', 'Reset');
+
+      form.appendChild(submitButton);
+      form.appendChild(resetButton);
+    })();
+
+    form.addEventListener('submit', (event) => {
+      console.log('this is working');
+      event.preventDefault();
+      let data = new FormData(form);
+      let obj = Object.fromEntries(data.entries());
+      console.log(obj);
+    })
+  </script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adding Schedules</title>
+  <style>
+    .schedule_container {border: 3px solid red;}
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+  <input type='submit' id='add_schedule' value='Add Another Schedule'><br><br>
+
+  <div class='schedule_container'>
+    <p>Schedule</p>
+    <form method="POST" action="#">
+      <label for='staff_list' name='staff_list'>Staff Name:
+        <select id="staff_list">
+
+        </select>
+      </label><br><br>
+      <label>Date:
+        <input type="date" id='date' name='date'>
+      </label><br><br>
+      <label>Time:
+        <input type="time" id='time' name='time'>
+      </label><br><br>
+      <input type='submit' value='Submit'>
+    </form>
+  </div><br>
+  <!-- <button type='submit' id='form_submit'>Submit</button>  -->
+
+  <script>
+    // GET a list of all Staff members & populate it in the dropdown
+    let $form = $('form');
+    let $select = $('#staff_list');
+    let staffList;
+
+    $.ajax({
+      url: 'http://localhost:3000/api/staff_members',
+      type: 'GET',
+      dataType: 'json'
+    }).done(function(resp) {
+      resp.forEach(staff => {
+        let option = document.createElement('option');
+        option.setAttribute('value', `${staff.name}`);
+        option.textContent = staff.name;
+        $select.append(option);
+      });
+      staffList = resp;
+    });
+
+    // add another schedule
+
+
+    // POST the form data to the server
+    $form.on('submit', (event) => {
+      event.preventDefault();
+      
+      // serialize the data
+      let staffName = $('option').val();
+      let staffId = staffList.filter(obj => obj.name === staffName)[0].id;
+      let formData = $form.serializeArray();
+      
+      let json = {};
+      json['staff_id'] = staffId;
+      formData.forEach(obj => {
+        json[obj.name] = obj.value;
+      });
+      // console.log(json);
+      let data = { schedules: `${json}`};
+      data = JSON.stringify(data);
+      // console.log(data);
+//       {
+      //     "schedules": [
+      //         {
+      //             "staff_id": 1,
+      //             "date": "10-10-10",
+      //             "time": "12:12"
+      //         }
+      //     ]
+      // }
+
+      // POST the form
+      $.ajax({
+        url: 'http://localhost:3000/api/schedules',
+        type: 'POST',
+        data: data,
+      }).done((response) => {
+        console.log(response);
+      }).fail((response) => {
+        console.log(response);
+      })
+
+      // $form.on('submit', event => {
+      //    event.preventDefault();
+      //   //  const json = JSON.stringify(formInputsToJson());
+      //    const xhr = new XMLHttpRequest();
+
+      //    xhr.open('POST', 'http://localhost:3000/api/schedules');
+      //    xhr.setRequestHeader('Content-Type', 'application/json');
+      //    xhr.send(data);
+
+      //    xhr.addEventListener('load', event => {
+      //        if (xhr.status === 201) $form.reset();
+      //        alert(xhr.responseText);
+      //    });
+      // });
+    });
+  </script>
+</body>
+</html>

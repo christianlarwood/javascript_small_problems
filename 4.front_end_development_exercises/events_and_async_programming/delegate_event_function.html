@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <title>Event Delegation Function</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <main>
+      <section>
+        <h1>Header</h1>
+        <p>Content</p>
+      </section>
+      <aside>
+        <h2>Sub Side Notes</h2>
+        <p>Note 1</p>
+        <p>Note 2</p>
+      </aside>
+    </main>
+    <nav>
+      <p>Side Note</p>
+    </nav>
+
+    <script>
+      // function delegateEvent(parentElement, selector, eventType, callback) {
+      //   if (!parentElement) {
+      //     return undefined;
+      //   }
+  
+      //   parentElement.addEventListener(eventType, () => {
+      //     // console.log(event.target.nodeName);
+      //     // console.log(selector.toUpperCase());
+      //     if (event.target.nodeName === selector.toUpperCase()) {
+      //       callback;
+      //     }
+      //   });
+      //   return true;
+      // }
+
+      // function delegateEvent(parentElement, selector, eventType, callback) {
+      //   if (parentElement && parentElement instanceof Element) {
+      //     return !parentElement.addEventListener(eventType, event => {
+      //       const validTargets = Array.prototype.slice.call(parentElement.querySelectorAll(selector));
+      //       if (validTargets.includes(event.target)) {
+      //         callback(event);
+      //       }
+      //     });
+      //   }
+      // }
+
+//       function delegateEvent(parentElement, selector, eventType, callback) {
+//   if (parentElement === null) return;
+
+//   parentElement.addEventListener(eventType, event => {
+//     let selectorNodes = document.querySelectorAll(selector);
+//     console.log(selectorNodes);
+//     if ([...selectorNodes].includes(event.target) && ![...selectorNodes].includes(event.currentTarget)) {
+//       callback(event);
+//     }
+//   });
+
+//   return true;
+// }
+
+      // Rodney's solution
+function delegateEvent(parentElement, selector, eventType, callback) {
+  if (!parentElement) return undefined;
+  if (!(parentElement instanceof Element)) return undefined; // added this line after seeing the solution.
+
+  parentElement.addEventListener(eventType, event => {
+    let list = document.querySelectorAll(selector);
+    if ([...list].includes(event.target) && ![...list].includes(event.currentTarget)) {
+      callback(event);
+    }
+  })
+  return true;
+}
+
+
+      // Possible elements for use with the scenarios
+      const element1 = document.querySelector('table');
+      const element2 = document.querySelector('main h1');
+      const element3 = document.querySelector('main');
+
+      // Possible callback for use with the scenarios
+      const callback = ({target, currentTarget}) => {
+        alert(`Target: ${target.tagName}\nCurrent Target: ${currentTarget.tagName}`);
+      };
+
+      // console.log(delegateEvent(element1, 'p', 'click', callback));
+      // console.log(delegateEvent(element2, 'p', 'click', callback));
+      delegateEvent(element2, 'h1', 'click', callback);
+      // console.log(delegateEvent(element3, 'h1', 'click', callback)); // 'Target: H1\nCurrent Target: MAIN'
+      // console.log(delegateEvent(element3, 'aside p', 'click', callback)); // 'Target: P\nCurrent Target: MAIN'.
+      // console.log(delegateEvent(element2, 'p', 'click', callback)); // 'Target: P\nCurrent Target: H1'
+    </script>
+  </body>
+</html>

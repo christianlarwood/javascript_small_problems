@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exotic Animals</title>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.6/handlebars.js'></script>
+  <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
+  <style>
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      border-bottom: 1px dotted black;
+    }
+    
+    .tooltiptext {
+      visibility: hidden;
+      width: 120px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 0;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -60px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #555 transparent transparent transparent;
+    }
+    
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>My Favorite Animals</h1>
+  <!-- <a href="https://unsplash.com/photos/nKC772R_qog">
+    <img src='images/turtle.jpg'>
+  </a> -->
+
+  <div id=images>
+
+  </div>
+
+  <script id='photo_template' type='text/x-handlebars'>
+    {{#each animals}}
+    {{> animal_info}}
+    {{/each}}
+  </script>
+
+  <script id='animal_info' type='text/x-handlebars'>
+  <dl>
+    <dt>{{name}}</dt>
+    <img src={{url}} data-id={{@index}}>
+    <span class='tooltipText'>{{caption}}</span>
+  </dl>
+  </script>
+
+  <script>
+    // compile the templates and register the partial
+    let photoTemplate = Handlebars.compile(document.querySelector('#photo_template').innerHTML);
+    let animalInfo = Handlebars.compile(document.querySelector('#animal_info').innerHTML);
+    Handlebars.registerPartial('animal_info', document.querySelector('#animal_info').innerHTML)
+
+    let photos = [
+      {
+        name: 'Harry the turtle',
+        url: `images/turtle.jpg`,
+        caption: "a turtle giving you a judgemental look.",
+      },
+      {
+        name: 'Sam the kitten',
+        url: 'images/kitten.jpg',
+        caption: "a kitten looks up into the sky",
+      },
+      {
+        name: 'Ellie the flamingo',
+        url: 'images/flamingo.jpg',
+        caption: 'a flamingo mocks you.',
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('this is working');
+      let imageContainer = document.querySelector('#images');
+      imageContainer.innerHTML = photoTemplate({animals: photos});
+
+      $(imageContainer).on('mouseover', 'img', (event) => {
+        let currentImage = event.target;
+        console.log(currentImage.classList.toggle('show'));
+      }) 
+    })
+  </script>
+</body>
+</html>

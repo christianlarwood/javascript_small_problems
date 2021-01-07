@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adding Staff</title>
+</head>
+<body>
+  <form action='/api/staff_members' method='post' novalidate>
+    <label>Email:</label>
+    <input type='text' id='email' name='email' placeholder='someone@test.com' required pattern='.+@+.'></input></br>
+    <label>Name:</label>
+    <input type='text' id='name' name='name' required minlength="3"></input></br>
+    <input type='submit'></input>
+  </form>
+  <script>
+    let form = document.querySelector('form');
+    let email = document.querySelector('#email');
+    let name = document.querySelector('#name');
+    
+    function formDataToJson(formData) {
+      let json = {};
+      for (let pair of formData.entries()) {
+        json[pair[0]] = pair[1];
+      }
+      return json;
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      if (!email.validity.valid && !name.validity.valid) {
+        alert('Staff member can not be created. Please check your inputs.')
+      } 
+  
+      let request = new XMLHttpRequest();
+      request.open('POST', 'http://localhost:3000/api/staff_members');
+      request.setRequestHeader('Content-Type', 'application/json');
+      request.responseType = 'json';
+
+      let formData = new FormData(form);
+      console.log(formData);
+      let json = JSON.stringify(formDataToJson(formData));
+      request.send(json);
+
+      request.addEventListener('load', () => {
+        console.log(request.response);
+        if (request.status === 201) {
+          alert(`Successfully created staff member "${name.value}" with ID: ${request.response.id}`)
+        }
+        form.reset();
+      });
+
+      request.addEventListener('error', () => {
+        alert(`there was an error: ${request.response}`)
+      });  
+    });
+    
+  </script>
+</body>
+</html>

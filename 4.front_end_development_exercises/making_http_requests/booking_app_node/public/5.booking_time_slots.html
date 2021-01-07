@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Time Slots</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+  <h2>Schedules</h2>
+  <form method='POST' id='schedules'>
+    <label>Please select one schedule:
+      <select id='staff_schedule'>
+
+      </select>
+    </label><br><br>
+    <label>Email:
+      <input type="email" name='email' placeholder="someone@email.com">
+    </label><br><br>
+    <input type="submit" value="Submit">
+  </form>
+  <form method='POST' id='new_student_details' action='/api/students'>
+
+  </form>
+  <script>
+    // GET list of all available schedules, GET of stafflist, and populate the dropdown
+    let availableSchedules;
+    let staffList;
+    let $form = $('form');
+    let $select = $('#staff_schedule');
+
+    $.ajax({
+      url: 'http://localhost:3000/api/schedules',
+      type: 'GET',
+      dataType: 'json'
+    }).done((response) => {
+      availableSchedules = response.filter(obj => obj.student_email === null);
+      // console.log(availableSchedules);
+      $.ajax({
+        url: 'http://localhost:3000/api/staff_members',
+        type: 'GET',
+        dataType: 'json'
+      }).done((response) => {
+        staffList = response;
+        // console.log(staffList);
+          availableSchedules.forEach(meeting => {
+            let option = document.createElement('option');
+            let staffName = staffList.find(obj => obj.id === meeting.staff_id).name;
+            let meetingInfo = `${staffName} on: ${meeting.date} at: ${meeting.time}`;
+            option.setAttribute('value', `${meetingInfo}`);
+            option.setAttribute('data-schedule-id', `${meeting.id}`);
+            option.setAttribute('name', `${staffName + '' + meeting.id}`);
+            option.textContent = meetingInfo;
+            $select.append(option);
+          })
+      });
+    })
+
+    function formDataToJson(formData) {
+      let json = {};
+      for (let pair of formData.entries()) {
+        json[pair[0]] = pair[1];
+      }
+      return json;
+    }
+
+    function buildStudentForm(email, bookingSequence) {
+      let form = document.querySelector('#new_student_details');
+
+      // form header
+      form.appendChild(document.createElement('br'));
+      form.appendChild(document.createElement('br'));
+      let formHeader = document.createElement('h3');
+      formHeader.textContent = 'Please provide new student details:';
+      form.appendChild(formHeader);
+
+      // student email
+      let emailLabel = document.createElement('label');
+      emailLabel.textContent = 'Email:';
+      let studentEmail = document.createElement('input');
+      studentEmail.setAttribute('type', 'email');
+      studentEmail.setAttribute('name', 'email');
+      studentEmail.setAttribute('value', `${email}`);
+
+      emailLabel.appendChild(studentEmail);
+      form.appendChild(emailLabel);
+      form.appendChild(document.createElement('br'));
+      form.appendChild(document.createElement('br'));
+
+      // student name
+      let nameLabel = document.createElement('label');
+      nameLabel.textContent = 'Name:';
+      let studentName = document.createElement('input');
+      studentName.setAttribute('name', 'full_name');
+
+      nameLabel.appendChild(studentName);
+      form.appendChild(nameLabel);
+      form.appendChild(document.createElement('br'));
+      form.appendChild(document.createElement('br'));
+
+      // booking sequence
+      let bookingLabel = document.createElement('label');
+      bookingLabel.textContent = 'Booking Sequence:';
+      let studentBookingSequence = document.createElement('input');
+      studentBookingSequence.setAttribute('name', 'booking_sequence');
+      studentBookingSequence.setAttribute('value', `${bookingSequence}`);
+
+      bookingLabel.appendChild(studentBookingSequence);
+      form.appendChild(bookingLabel);
+      form.appendChild(document.createElement('br'));
+      form.appendChild(document.createElement('br'));
+
+      // form button
+      let submitButton = document.createElement('input');
+      submitButton.setAttribute('type', 'submit');
+      submitButton.setAttribute('value', 'Submit');
+      form.appendChild(submitButton);
+    }
+
+    // POST the form and check if the student exists
+    $form.on('submit', (event) => {
+      event.preventDefault();
+      // serialize the data
+      let scheduleId = $('option').attr('data-schedule-id');
+      let fields = $(":input").serializeArray()[0];
+      // console.log($form.serializeArray());
+      // console.log(fields, scheduleId);
+      let data = {};
+      data.id = scheduleId;
+      data.student_email = fields.value;
+
+      $.ajax({
+        url: 'http://localhost:3000/api/bookings',
+        type: 'POST',
+        data: data,
+      }).done((response) => {
+        console.log(response);
+      }).fail((response) => {
+        alert(response.responseText);
+        if (response.status === 404) {
+          let bookingSequence = response.responseText.split(' ').pop();
+          console.log(bookingSequence);
+          buildStudentForm(data.student_email, bookingSequence);
+
+          // submit the new student details and book the session 
+          let form = document.querySelector('#new_student_details');
+
+          form.addEventListener('submit', (event) => {
+            event.preventDefault();
+      
+            let request = new XMLHttpRequest();
+            // request.open('POST', 'http://localhost:3000/api/students');
+            request.open('POST', form.action);
+            request.setRequestHeader('Content-Type', 'application/json');
+            let newStudentData = {};
+            newStudentData.email = data.student_email;
+            newStudentData.name = document.querySelector('[name="full_name"]').value;
+            newStudentData.booking_sequence = bookingSequence;
+            console.log(newStudentData);
+
+            request.send(JSON.stringify(newStudentData));
+
+            request.addEventListener('load', event => {
+              alert(request.status);
+              if (request.status === 201) {
+                form.reset();
+                form.dispatchEvent(new Event('submit', { cancelable: true }));
+              }
+            })
+
+            // request.addEventListener('error', event => {
+            //   alert(request.responseText);
+            // })
+          })
+        }
+      })
+    })
+    
+    // If student doesn't exist, open up a new form and let them add themselves.
+  </script>
+</body>
+</html>
